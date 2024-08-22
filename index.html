@@ -164,7 +164,8 @@
 
         this.alert = null
         this.loading = true
-
+        slug = md5(url)
+        slug = slug.substring(0, 7)
         const body = { url: this.url, slug: this.slug, expiry: this.expiry }
 
         fetch('/create', {
