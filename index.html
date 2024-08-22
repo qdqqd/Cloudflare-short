@@ -161,7 +161,7 @@
           this.alert = { type: 'error', message: '非法格式：url。' }
           return
         }
-        this.slug = CryptoJS.MD5(this.url).toString()
+        this.slug = CryptoJS.MD5(this.url).toString().substr(0, 7);
         this.alert = null
         this.loading = true
         const body = { url: this.url, slug: this.slug, expiry: this.expiry }
