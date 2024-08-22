@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Teror的短链接服务</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js" integrity="sha512-8pbzenDolL1l5OPSsoURCx9TEdMFTaeFipASVrMYKhuYtly+k3tcsQYliOEKTmuB1t7yuzAiVo+yd7SJz+ijFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js" integrity="sha512-a+SUDuwNzXDvz4XrIcXHuCf089/iJAoN4lmrXJg18XnduKK6YlDHNRalv4yd1N40OKI80tFidF+rqTFKGPoWFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
     body {
       /*background: url('https://i0.wp.com/wangwangit001.cachefly.net/wangwangit/image/master/img/%E6%B5%8B%E8%AF%952.jpg') center/cover fixed;
@@ -161,7 +161,7 @@
           this.alert = { type: 'error', message: '非法格式：url。' }
           return
         }
-
+        this.slug = CryptoJS.MD5(this.url).toString()
         this.alert = null
         this.loading = true
         const body = { url: this.url, slug: this.slug, expiry: this.expiry }
