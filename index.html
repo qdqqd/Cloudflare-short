@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <link rel="icon" href="asset/img/favicon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>一只会飞的旺旺</title>
+  <title>Teror的短链接服务</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js" integrity="sha512-8pbzenDolL1l5OPSsoURCx9TEdMFTaeFipASVrMYKhuYtly+k3tcsQYliOEKTmuB1t7yuzAiVo+yd7SJz+ijFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
@@ -164,8 +164,6 @@
 
         this.alert = null
         this.loading = true
-        slug = md5(url)
-        slug = slug.substring(0, 7)
         const body = { url: this.url, slug: this.slug, expiry: this.expiry }
 
         fetch('/create', {
