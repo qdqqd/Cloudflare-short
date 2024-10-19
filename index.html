@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/tailwindcss/2.2.16/tailwind.min.css">
   <script src="https://cdn.bootcdn.net/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
   <style>
-   body {
+    body {
       background: url('https://img.meituan.net/video/dfa457eb598cd097244a9911e297092f41980.webp') center/cover fixed;
       font-family: 'Arial', sans-serif;
       color: #333;
@@ -144,7 +144,7 @@
         </details>
         
         <!-- 按钮 -->
-        <button :class="{ loading }" :disabled="loading || isValidated()" @click="submit($refs, $nextTick)"
+        <button :class="{ loading }" :disabled="loading || !isValidated()" @click="submit($refs, $nextTick)"
           class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
           生成
         </button>
@@ -162,7 +162,7 @@
   const app = {
     url: '',
     slug: '',
-    expiry: '', // 添加过期时间属性
+    expiry: '',
     alert: null,
     loading: false,
 
@@ -187,7 +187,7 @@
 
       this.slug = CryptoJS.MD5(this.url).toString().substr(0, 7);
       this.alert = null;
-      this.loading = true; // 设置 loading 状态，显示加载提示
+      this.loading = true;
 
       const body = { url: this.url, slug: this.slug, expiry: this.expiry };
 
@@ -198,8 +198,13 @@
           body: JSON.stringify(body),
         });
 
+        if (!res.ok) {
+          // 如果响应状态码不在 200-299 范围内，抛出错误
+          throw new Error(`请求失败，状态码: ${res.status}`);
+        }
+
         const data = await res.json();
-        this.loading = false; // 关闭 loading 状态
+        this.loading = false;
 
         if (data.message) {
           this.setAlert('error', data.message);
@@ -214,15 +219,11 @@
           this.setAlert('success', `链接已复制${copySuccess ? '成功' : '失败'}`);
         });
       } catch (e) {
-        this.setAlert('error', e.message);
+        // 捕获所有可能的错误，包括网络错误、JSON 解析错误等
+        if (e instanceof SyntaxError) {
+          this.setAlert('error', '解析响应失败');
+        } else {
+          this.setAlert('error', e.message || '发生未知错误');
+        }
         this.loading = false;
       }
-    },
-
-    setAlert(type, message) {
-      this.alert = { type, message };
-    },
-  };
-  </script>
-</body>
-</html>
