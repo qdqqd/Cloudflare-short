@@ -6,14 +6,15 @@
 
 function generateRandomString(length) {
     const characters = '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let result = '';
+    const charactersLength = characters.length;
+    const result = [];
 
     for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * characters.length);
-        result += characters.charAt(randomIndex);
+        const randomIndex = Math.floor(Math.random() * charactersLength);
+        result.push(characters[randomIndex]); 
     }
 
-    return result;
+    return result.join(''); 
 }
 
 export async function onRequest(context) {
@@ -61,9 +62,9 @@ export async function onRequest(context) {
         })
     }
 
-    // 自定义slug长度检查 2<slug<10 是否不以文件后缀结尾
-    if (slug && (slug.length < 2 || slug.length > 10 || /.+\.[a-zA-Z]+$/.test(slug))) {
-        return Response.json({ message: '非法长度：2<短链接长度<10 ，或不以文件扩展名结尾' }, {
+    // 自定义slug长度检查 4<slug<10 是否不以文件后缀结尾
+    if (slug && (slug.length < 4 || slug.length > 10 || /.+\.[a-zA-Z]+$/.test(slug))) {
+        return Response.json({ message: '非法长度：4<短链接长度<10 ，或不以文件扩展名结尾' }, {
             headers: corsHeaders,
             status: 400
 
@@ -117,8 +118,8 @@ export async function onRequest(context) {
         }
 
         // 生成随机slug
-        const slug2 = slug ? slug : generateRandomString(4);
-        // console.log('slug', slug2);
+        const slug2 = slug ? slug : generateRandomString(7);
+
         // 计算过期时间
         let expiresAt = null;
         if (expiry) {
