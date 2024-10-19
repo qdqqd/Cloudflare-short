@@ -214,13 +214,11 @@ const app = {
         if (!/^https?:\/\//.test(this.url)) {
             this.url = 'http://' + this.url;
         }
-       console.log("补全非法链接:",this.url);
-
         if (!this.isValidated()) {
             this.setAlert('error', '非法格式：url。');
             return;
         }
-
+ console.log("快乐");
         this.alert = { type: 'info', message: '正在生成短链接...' }; // 添加生成提示
         this.loading = true;
 
@@ -296,6 +294,6 @@ const app = {
 
 </script>
   <script charset="UTF-8" id="LA_COLLECT" src="https://testingcf.jsdelivr.net/gh/qdqqd/url-core@main/js-sdk-pro.min.js"></script>
-  <script charset="UTF-8" id="LA_COLLECT" src="https://testingcf.jsdelivr.net/gh/qdqqd/url-core/pixiv.js"></script>
+  <script src="https://testingcf.jsdelivr.net/gh/qdqqd/url-core/pixiv.js"></script>
 </body>
 </html>
