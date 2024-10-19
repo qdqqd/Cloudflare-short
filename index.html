@@ -241,8 +241,10 @@ const app = {
     this.alert = { type: 'info', message: '正在生成短链接...' }; // 添加生成提示
     this.loading = true; // 开始加载状态
 
-    // 调用 generateSlug 生成 slug
-    this.slug = await this.generateSlug(this.url);
+      // 只有当用户没有输入自定义的 slug 时才生成 slug
+    if (!this.slug) {
+        this.slug = await this.generateSlug(this.url);
+    }
     const body = { url: this.url, slug: this.slug, expiry: this.expiry };
 
     try {
@@ -279,6 +281,7 @@ const app = {
             const copySuccess = document.execCommand('Copy');
             this.setAlert('success', `短链接已复制${copySuccess ? '成功' : '失败'}`);
         });
+this.slug = '';
     } catch (e) {
         console.error("Error:", e);
         if (e instanceof SyntaxError) {
