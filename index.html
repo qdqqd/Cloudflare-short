@@ -215,10 +215,12 @@ const app = {
             this.url = 'http://' + this.url;
         }
         if (!this.isValidated()) {
-            this.setAlert('error', '非法格式：url。');
-            return;
-        }
- console.log("快乐");
+    console.log("URL 验证未通过:", this.url);
+    this.setAlert('error', '非法格式：url。');
+    return;
+}
+console.log("快乐");
+
         this.alert = { type: 'info', message: '正在生成短链接...' }; // 添加生成提示
         this.loading = true;
 
