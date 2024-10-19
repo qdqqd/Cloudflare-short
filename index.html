@@ -160,79 +160,78 @@
   <script src="asset/js/alpine.js"></script>
   <script>
   const app = {
-    url: '',
-    slug: '',
-    expiry: '',
-    alert: null,
-    loading: false,
+  url: '',
+  slug: '',
+  expiry: '',
+  alert: null,
+  loading: false, // 确保初始状态为 false
 
-    isValidated() {
-      return /^https?:\/\/.{3,}/.test(this.url);
-    },
+  isValidated() {
+    return /^https?:\/\/.{3,}/.test(this.url);
+  },
 
-    async submit($refs, $nextTick) {
-      if (!this.url) {
-        this.setAlert('error', '缺少必需的参数：url。');
+  async submit($refs, $nextTick) {
+    if (!this.url) {
+      this.setAlert('error', '缺少必需的参数：url。');
+      return;
+    }
+
+    if (!this.url.startsWith('http://') && !this.url.startsWith('https://')) {
+      this.url = 'http://' + this.url;
+    }
+
+    if (!this.isValidated()) {
+      this.setAlert('error', '非法格式：url。');
+      return;
+    }
+
+    this.slug = CryptoJS.MD5(this.url).toString().substr(0, 7);
+    this.alert = null;
+    this.loading = true;  // 点击生成时设置为 true
+
+    const body = { url: this.url, slug: this.slug, expiry: this.expiry };
+
+    try {
+      const res = await fetch('/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        throw new Error(`请求失败，状态码: ${res.status}`);
+      }
+
+      const data = await res.json();
+      this.loading = false;  // 请求完成后设置为 false
+
+      if (data.message) {
+        this.setAlert('error', data.message);
         return;
       }
 
-      if (!this.url.startsWith('http://') && !this.url.startsWith('https://')) {
-        this.url = 'http://' + this.url;
+      this.url = data.link;
+
+      $nextTick(() => {
+        $refs.url.select();
+        const copySuccess = document.execCommand('Copy');
+        this.setAlert('success', `链接已复制${copySuccess ? '成功' : '失败'}`);
+      });
+    } catch (e) {
+      if (e instanceof SyntaxError) {
+        this.setAlert('error', '解析响应失败');
+      } else {
+        this.setAlert('error', e.message || '发生未知错误');
       }
+      this.loading = false;  // 请求失败后也要设置为 false
+    }
+  },
 
-      if (!this.isValidated()) {
-        this.setAlert('error', '非法格式：url。');
-        return;
-      }
+  setAlert(type, message) {
+    this.alert = { type, message };
+  },
+};
 
-      this.slug = CryptoJS.MD5(this.url).toString().substr(0, 7);
-      this.alert = null;
-      this.loading = true;
-
-      const body = { url: this.url, slug: this.slug, expiry: this.expiry };
-
-      try {
-        const res = await fetch('/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
-
-        if (!res.ok) {
-          // 如果响应状态码不在 200-299 范围内，抛出错误
-          throw new Error(`请求失败，状态码: ${res.status}`);
-        }
-
-        const data = await res.json();
-        this.loading = false;
-
-        if (data.message) {
-          this.setAlert('error', data.message);
-          return;
-        }
-
-        this.url = data.link;
-
-        $nextTick(() => {
-          $refs.url.select();
-          const copySuccess = document.execCommand('Copy');
-          this.setAlert('success', `链接已复制${copySuccess ? '成功' : '失败'}`);
-        });
-      } catch (e) {
-        // 捕获所有可能的错误，包括网络错误、JSON 解析错误等
-        if (e instanceof SyntaxError) {
-          this.setAlert('error', '解析响应失败');
-        } else {
-          this.setAlert('error', e.message || '发生未知错误');
-        }
-        this.loading = false;
-      }
-    },
-
-    setAlert(type, message) {
-      this.alert = { type, message };
-    },
-  };
   </script>
 </body>
 </html>
