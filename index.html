@@ -165,7 +165,9 @@
     loading: false,
 
     isValidated() {
-        return /^https?:\/\/.+/.test(this.url);
+        const valid = /^https?:\/\/.+/.test(this.url);
+        console.log("URL Validated:", this.url, valid);
+        return valid;
     },
 
     async generateSlug(url) {
@@ -174,7 +176,6 @@
         const hashBuffer = await crypto.subtle.digest('SHA-256', data);
         const hashArray = Array.from(new Uint8Array(hashBuffer));
         const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        // 从哈希值中随机选择 7 个字符
         return this.getRandomCharacters(hashHex, 7);
     },
 
@@ -190,6 +191,8 @@
     },
 
     async submit($refs, $nextTick) {
+        console.log("Submit method called.");
+        
         if (!this.url) {
             this.setAlert('error', '缺少必需的参数：url。');
             return;
@@ -205,11 +208,12 @@
             return;
         }
 
-        this.alert = null;
+        this.alert = { type: 'info', message: '正在生成短链接...' }; // 添加生成提示
         this.loading = true;
 
         // 调用 generateSlug 生成 slug
         this.slug = await this.generateSlug(this.url);
+        console.log("Generated slug:", this.slug);
 
         const body = { url: this.url, slug: this.slug, expiry: this.expiry };
 
@@ -232,6 +236,7 @@
             }
 
             this.url = data.link;
+            console.log("Shortened URL:", this.url);
 
             $nextTick(() => {
                 $refs.url.select();
@@ -239,6 +244,7 @@
                 this.setAlert('success', `链接已复制${copySuccess ? '成功' : '失败'}`);
             });
         } catch (e) {
+            console.error("Error:", e);
             if (e instanceof SyntaxError) {
                 this.setAlert('error', '解析响应失败');
             } else {
@@ -246,6 +252,7 @@
             }
         } finally {
             this.loading = false; // 确保无论如何都重置 loading 状态
+            this.alert = null; // 完成后清除提示
         }
     },
 
