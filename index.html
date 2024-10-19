@@ -157,7 +157,7 @@
     </footer>
   <script src="asset/js/alpine.js"></script>
 <script>
-   const app = {
+ const app = {
     url: '',
     slug: '',
     expiry: '',
@@ -252,14 +252,19 @@
             }
         } finally {
             this.loading = false; // 确保无论如何都重置 loading 状态
-            this.alert = null; // 完成后清除提示
+            // 在这里确保 alert 显示
+            if (!this.alert) {
+                this.setAlert('info', '操作已完成。');
+            }
         }
     },
 
     setAlert(type, message) {
         this.alert = { type, message };
+        console.log("Alert set:", type, message);
     },
 };
+
 
 </script>
 
