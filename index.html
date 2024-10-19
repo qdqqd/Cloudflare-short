@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
@@ -179,31 +179,33 @@
     <p>Copyright ©2022 <a href="https://www.qdqqd.com/" target="_blank">柯艺云</a></p>
     </footer>
   
- <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('app', () => ({
-                url: '',
-                slug: '',
-                expiry: '',
-                alert: null,
-                loading: false,
+<script>
+const app = {
+    url: '',
+    slug: '',
+    expiry: '',
+    alert: null,
+    loading: false,
 
-                isValidated() {
-                    const isValid = this.validateUrl(this.url);
-                    console.log("验证URL格式:", this.url, isValid);
-                    return isValid;
-                },
+    // 使用更简洁的方式验证 URL
+    isValidated() {
+        const isValid = this.validateUrl(this.url);
+        console.log("验证URL格式:", this.url, isValid);
+        return isValid;
+    },
 
-                validateUrl(url) {
-                    try {
-                        new URL(url);
-                        return true;
-                    } catch {
-                        return false;
-                    }
-                },
+    // 创建一个专门用于验证 URL 的函数
+    validateUrl(url) {
+        // 使用 URL 构造函数来验证格式
+        try {
+            new URL(url);
+            return true;
+        } catch {
+            return false;
+        }
+    },
 
-   async generateSlug(url) {
+    async generateSlug(url) {
         const encoder = new TextEncoder();
         const data = encoder.encode(url);
         const hashBuffer = await crypto.subtle.digest('SHA-256', data);
@@ -223,78 +225,107 @@
         return randomIndices.map(index => str[index]).join('');
     },
 
+    async submit($refs, $nextTick) {
+    if (!this.url) {
+        this.setAlert('error', '缺少必需的参数：url。');
+        return;
+    }
 
-                async submit($refs, $nextTick) {
-                    if (!this.url) {
-                        this.setAlert('error', '缺少必需的参数：url。');
-                        return;
-                    }
+    // 确保 URL 以 http:// 或 https:// 开头
+    if (!/^https?:\/\//.test(this.url)) {
+        this.url = 'http://' + this.url;
+    }
+    if (!this.isValidated()) {
+        this.setAlert('error', '非法格式：url');
+        return;
+    }
 
-                    if (!/^https?:\/\//.test(this.url)) {
-                        this.url = 'http://' + this.url;
-                    }
-                    if (!this.isValidated()) {
-                        this.setAlert('error', '非法格式：url');
-                        return;
-                    }
+    this.alert = { type: 'info', message: '正在生成短链接...' }; // 添加生成提示
+    this.loading = true; // 开始加载状态
 
-                    this.alert = { type: 'info', message: '正在生成短链接...' };
-                    this.loading = true;
+      // 只有当用户没有输入自定义的 slug 时才生成 slug
+    if (!this.slug) {
+        this.slug = await this.generateSlug(this.url);
+    }
+    const body = { url: this.url, slug: this.slug, expiry: this.expiry };
 
-                    if (!this.slug) {
-                        this.slug = await this.generateSlug(this.url);
-                    }
-                    const body = { url: this.url, slug: this.slug, expiry: this.expiry };
-
-                    try {
-                        const res = await fetch('/create', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(body),
-                        });
-                        const data = await res.json();
-                        if (!res.ok) {
-                            this.setAlert('error', data.message || `请求失败，状态码: ${res.status}`);
-                            return;
-                        }
-
-                        this.url = data.link;
-                        console.log("生成的URL:", this.url);
-                        const qrcodeContainer = document.getElementById('qrcodeContainer');
-                        qrcodeContainer.style.display = 'flex';
-                        this.generateQRCode(this.url);
-                        $nextTick(() => {
-                            $refs.url.select();
-                            const copySuccess = document.execCommand('Copy');
-                            this.setAlert('success', `短链接已复制${copySuccess ? '成功' : '失败'}`);
-                        });
-                        this.slug = '';
-                    } catch (e) {
-                        console.error("Error:", e);
-                        this.setAlert('error', e.message || '发生未知错误');
-                    } finally {
-                        this.loading = false;
-                        if (!this.alert) {
-                            this.setAlert('info', '操作已完成。');
-                        }
-                    }
-                },
-
-                setAlert(type, message) {
-                    this.alert = { type, message };
-                },
-
-                generateQRCode(url) {
-                    const qrcodeContainer = document.getElementById('qrcode');
-                    qrcodeContainer.style.display = 'block';
-                    QRCode.toCanvas(qrcodeContainer, url, { errorCorrectionLevel: 'H' }, function (error) {
-                        if (error) console.error(error);
-                        console.log('二维码生成成功!');
-                    });
-                },
-            }));
+    try {
+        const res = await fetch('/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
         });
-    </script>
+ const data = await res.json();
+        if (!res.ok) {
+           if (data.message) {
+            this.setAlert('error', data.message);
+            return;
+        }
+            throw new Error(`请求失败，状态码: ${res.status}`);
+        }
+
+      if (data.message) {
+            this.setAlert('error', data.message);
+            return;
+        }
+
+        this.url = data.link;
+        console.log("生成的URL:", this.url);
+
+      // 生成二维码
+    const qrcodeContainer = document.getElementById('qrcodeContainer');
+    const qrcodeCanvas = document.getElementById('qrcode');
+    qrcodeContainer.style.display = 'flex'; // 使二维码容器显示，并居中
+      this.generateQRCode(this.url);
+      
+        $nextTick(() => {
+            $refs.url.select();
+            const copySuccess = document.execCommand('Copy');
+            this.setAlert('success', `短链接已复制${copySuccess ? '成功' : '失败'}`);
+        });
+this.slug = '';
+    } catch (e) {
+        console.error("Error:", e);
+        if (e instanceof SyntaxError) {
+            this.setAlert('error', '解析响应失败');
+        } else {
+            this.setAlert('error', e.message || '发生未知错误');
+        }
+    } finally {
+        this.loading = false; // 确保无论如何都重置 loading 状态
+        if (!this.alert) {
+            this.setAlert('info', '操作已完成。');
+        }
+    }
+},
+
+
+    setAlert(type, message) {
+        this.alert = { type, message };
+
+    },
+
+  // 二维码生成
+generateQRCode(url) {
+        const qrcodeContainer = document.getElementById('qrcode');
+        qrcodeContainer.style.display = 'block'; // 显示二维码容器
+        QRCode.toCanvas(qrcodeContainer, url, { errorCorrectionLevel: 'H' }, function (error) {
+            if (error) console.error(error);
+            console.log('二维码生成成功!');
+        });
+    },
+
+
+
+  
+};
+
+
+
+
+</script>
+
+
      <script>
         const highlightStyles = {
           title: "color: #ffffff; background: #007bff; padding: 2px 4px; border-radius: 3px;",
