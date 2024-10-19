@@ -170,7 +170,7 @@ const app = {
     // 使用更简洁的方式验证 URL
     isValidated() {
         const isValid = this.validateUrl(this.url);
-        console.log("URL Validated:", this.url, isValid);
+        console.log("验证URL格式:", this.url, isValid);
         return isValid;
     },
 
@@ -206,8 +206,6 @@ const app = {
     },
 
     async submit($refs, $nextTick) {
-    console.log("Submit method called.");
-
     if (!this.url) {
         this.setAlert('error', '缺少必需的参数：url。');
         return;
@@ -218,8 +216,7 @@ const app = {
         this.url = 'http://' + this.url;
     }
     if (!this.isValidated()) {
-        console.log("URL 验证未通过:", this.url);
-        this.setAlert('error', '非法格式：url。');
+        this.setAlert('error', '非法格式：url');
         return;
     }
 
@@ -228,8 +225,6 @@ const app = {
 
     // 调用 generateSlug 生成 slug
     this.slug = await this.generateSlug(this.url);
-    console.log("Generated slug:", this.slug);
-
     const body = { url: this.url, slug: this.slug, expiry: this.expiry };
 
     try {
@@ -238,20 +233,22 @@ const app = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
         });
-
+ const data = await res.json();
         if (!res.ok) {
+           if (data.message) {
+            this.setAlert('error', data.message);
+            return;
+        }
             throw new Error(`请求失败，状态码: ${res.status}`);
         }
 
-        const data = await res.json();
-
-        if (data.message) {
+      if (data.message) {
             this.setAlert('error', data.message);
             return;
         }
 
         this.url = data.link;
-        console.log("Shortened URL:", this.url);
+        console.log("生成的URL:", this.url);
 
         $nextTick(() => {
             $refs.url.select();
@@ -276,7 +273,7 @@ const app = {
 
     setAlert(type, message) {
         this.alert = { type, message };
-        console.log("Alert set:", type, message);
+
     },
 };
 
@@ -297,6 +294,50 @@ const app = {
           highlightStyles.description // 高亮描述样式
         );
 
+(function() {
+    window.onclick = function(event) {
+        var heart = document.createElement("b");
+        heart.textContent = "❤";
+        heart.style.position = "fixed";
+        heart.style.left = "-100%";
+        document.body.appendChild(heart);
+
+        var f = 16, // 字体大小
+            x = event.clientX - f / 2, // 横坐标
+            y = event.clientY - f, // 纵坐标
+            color = randomColor(), // 随机颜色
+            opacity = 1, // 透明度
+            scale = 1.2; // 放大缩小
+
+        var timer = setInterval(function() {
+            if (opacity <= 0) {
+                document.body.removeChild(heart);
+                clearInterval(timer);
+            } else {
+                heart.style.fontSize = f + "px";
+                heart.style.cursor = "default";
+                heart.style.color = color;
+                heart.style.left = x + "px";
+                heart.style.top = y + "px";
+                heart.style.opacity = opacity;
+                heart.style.transform = "scale(" + scale + ")";
+
+                y--;
+                opacity -= 0.016;
+                scale += 0.002;
+            }
+        }, 12);
+    };
+
+    // 随机颜色
+    function randomColor() {
+        var r = Math.floor(Math.random() * 255);
+        var g = Math.floor(Math.random() * 255);
+        var b = Math.floor(Math.random() * 255);
+        return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+    }
+}());
+       
 </script>
   <script charset="UTF-8" id="LA_COLLECT" src="https://testingcf.jsdelivr.net/gh/qdqqd/url-core@main/js-sdk-pro.min.js"></script>
   <script src="https://testingcf.jsdelivr.net/gh/qdqqd/url-core/pixiv.js"></script>
