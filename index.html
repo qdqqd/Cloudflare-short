@@ -8,6 +8,7 @@
   <title>短链接生成 - 柯艺云</title>
   <meta name="referrer" content="never">
   <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/tailwindcss/2.2.16/tailwind.min.css">
+  <script src="https://testingcf.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <style>
             body {
             background: linear-gradient(to right, pink, lightblue);
@@ -130,6 +131,7 @@
                         @focus="$event.target.select()"
                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:shadow-outline" />
                 </div>
+              <div id="qrcode" class="mt-4" style="display: none;"></div>
                 <details class="mb-4 border border-gray-300 rounded-md">
                     <summary class="px-4 py-2 cursor-pointer font-medium">自定义设置</summary>
                     <div class="px-4 py-2">
@@ -254,7 +256,7 @@ const app = {
 
         this.url = data.link;
         console.log("生成的URL:", this.url);
-
+this.generateQRCode(this.url);
         $nextTick(() => {
             $refs.url.select();
             const copySuccess = document.execCommand('Copy');
@@ -280,6 +282,20 @@ const app = {
         this.alert = { type, message };
 
     },
+
+  // 二维码生成
+generateQRCode(url) {
+        const qrcodeContainer = document.getElementById('qrcode');
+        qrcodeContainer.style.display = 'block'; // 显示二维码容器
+        QRCode.toCanvas(qrcodeContainer, url, { errorCorrectionLevel: 'H' }, function (error) {
+            if (error) console.error(error);
+            console.log('二维码生成成功!');
+        });
+    },
+
+
+
+  
 };
 
 
