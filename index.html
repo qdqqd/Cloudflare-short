@@ -203,17 +203,26 @@
                     }
                 },
 
-                async generateSlug(length = 7) {
-                    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-                    const randomChars = [];
+   async generateSlug(url) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(url);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return this.getRandomCharacters(hashHex, 7);
+    },
 
-                    for (let i = 0; i < length; i++) {
-                        const randomIndex = Math.floor(Math.random() * characters.length);
-                        randomChars.push(characters[randomIndex]);
-                    }
+    getRandomCharacters(str, length) {
+        const randomIndices = [];
+        while (randomIndices.length < length) {
+            const randomIndex = Math.floor(Math.random() * str.length);
+            if (!randomIndices.includes(randomIndex)) {
+                randomIndices.push(randomIndex);
+            }
+        }
+        return randomIndices.map(index => str[index]).join('');
+    },
 
-                    return randomChars.join('');
-                },
 
                 async submit($refs, $nextTick) {
                     if (!this.url) {
@@ -233,7 +242,7 @@
                     this.loading = true;
 
                     if (!this.slug) {
-                        this.slug = await this.generateSlug();
+                        this.slug = await this.generateSlug(this.url);
                     }
                     const body = { url: this.url, slug: this.slug, expiry: this.expiry };
 
