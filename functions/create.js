@@ -63,7 +63,7 @@ export async function onRequest(context) {
 
     // 自定义slug长度检查 2<slug<10 是否不以文件后缀结尾
     if (slug && (slug.length < 2 || slug.length > 10 || /.+\.[a-zA-Z]+$/.test(slug))) {
-        return Response.json({ message: 'Illegal length: slug, (>= 2 && <= 10), or not ending with a file extension.' }, {
+        return Response.json({ message: '非法长度：2<短链接长度<10 ，或不以文件扩展名结尾' }, {
             headers: corsHeaders,
             status: 400
 
