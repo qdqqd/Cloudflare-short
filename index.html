@@ -8,7 +8,6 @@
   <title>短链接生成 - 柯艺云</title>
   <meta name="referrer" content="never">
   <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/tailwindcss/2.2.16/tailwind.min.css">
-  <script src="https://cdn.bootcdn.net/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
   <style>
             body {
             background: linear-gradient(to right, pink, lightblue);
@@ -158,79 +157,103 @@
     </footer>
   <script src="asset/js/alpine.js"></script>
 <script>
-    const app = {
-        url: '',
-        slug: '',
-        expiry: '',
-        alert: null,
-        loading: false,
+   const app = {
+    url: '',
+    slug: '',
+    expiry: '',
+    alert: null,
+    loading: false,
 
-        isValidated() {
-            return /^https?:\/\/.+/.test(this.url);
-        },
+    isValidated() {
+        return /^https?:\/\/.+/.test(this.url);
+    },
 
-        async submit($refs, $nextTick) {
-            if (!this.url) {
-                this.setAlert('error', '缺少必需的参数：url。');
+    async generateSlug(url) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(url);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        // 从哈希值中随机选择 7 个字符
+        return this.getRandomCharacters(hashHex, 7);
+    },
+
+    getRandomCharacters(str, length) {
+        const randomIndices = [];
+        while (randomIndices.length < length) {
+            const randomIndex = Math.floor(Math.random() * str.length);
+            if (!randomIndices.includes(randomIndex)) {
+                randomIndices.push(randomIndex);
+            }
+        }
+        return randomIndices.map(index => str[index]).join('');
+    },
+
+    async submit($refs, $nextTick) {
+        if (!this.url) {
+            this.setAlert('error', '缺少必需的参数：url。');
+            return;
+        }
+
+        // 确保 URL 以 http:// 或 https:// 开头
+        if (!/^https?:\/\//.test(this.url)) {
+            this.url = 'http://' + this.url;
+        }
+
+        if (!this.isValidated()) {
+            this.setAlert('error', '非法格式：url。');
+            return;
+        }
+
+        this.alert = null;
+        this.loading = true;
+
+        // 调用 generateSlug 生成 slug
+        this.slug = await this.generateSlug(this.url);
+
+        const body = { url: this.url, slug: this.slug, expiry: this.expiry };
+
+        try {
+            const res = await fetch('/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            });
+
+            if (!res.ok) {
+                throw new Error(`请求失败，状态码: ${res.status}`);
+            }
+
+            const data = await res.json();
+
+            if (data.message) {
+                this.setAlert('error', data.message);
                 return;
             }
 
-            // 确保 URL 以 http:// 或 https:// 开头
-            if (!/^https?:\/\//.test(this.url)) {
-                this.url = 'http://' + this.url;
+            this.url = data.link;
+
+            $nextTick(() => {
+                $refs.url.select();
+                const copySuccess = document.execCommand('Copy');
+                this.setAlert('success', `链接已复制${copySuccess ? '成功' : '失败'}`);
+            });
+        } catch (e) {
+            if (e instanceof SyntaxError) {
+                this.setAlert('error', '解析响应失败');
+            } else {
+                this.setAlert('error', e.message || '发生未知错误');
             }
+        } finally {
+            this.loading = false; // 确保无论如何都重置 loading 状态
+        }
+    },
 
-            if (!this.isValidated()) {
-                this.setAlert('error', '非法格式：url。');
-                return;
-            }
+    setAlert(type, message) {
+        this.alert = { type, message };
+    },
+};
 
-            this.slug = CryptoJS.MD5(this.url).toString().substr(0, 7);
-            this.alert = null;
-            this.loading = true;
-
-            const body = { url: this.url, slug: this.slug, expiry: this.expiry };
-
-            try {
-                const res = await fetch('/create', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body),
-                });
-
-                if (!res.ok) {
-                    throw new Error(`请求失败，状态码: ${res.status}`);
-                }
-
-                const data = await res.json();
-
-                if (data.message) {
-                    this.setAlert('error', data.message);
-                    return;
-                }
-
-                this.url = data.link;
-
-                $nextTick(() => {
-                    $refs.url.select();
-                    const copySuccess = document.execCommand('Copy');
-                    this.setAlert('success', `链接已复制${copySuccess ? '成功' : '失败'}`);
-                });
-            } catch (e) {
-                if (e instanceof SyntaxError) {
-                    this.setAlert('error', '解析响应失败');
-                } else {
-                    this.setAlert('error', e.message || '发生未知错误');
-                }
-            } finally {
-                this.loading = false; // 确保无论如何都重置 loading 状态
-            }
-        },
-
-        setAlert(type, message) {
-            this.alert = { type, message };
-        },
-    };
 </script>
 
 
