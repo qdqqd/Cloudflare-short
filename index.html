@@ -115,7 +115,6 @@
   </style>
 </head>
 <body oncontextmenu="return false" onselectstart="return false">
-    <div id="background"></div>
     <main>
         <div class="container" style="position: relative; z-index: 1;">
             <h1 class="text-3xl font-bold text-gray-800">短链接生成</h1>
@@ -230,101 +229,8 @@
                 this.alert = { type, message };
             },
         };
-
-        async function fetchBingImages() {
-            const isWideScreen = window.innerWidth > window.innerHeight;
-            const endpoint = isWideScreen ? 'https://tc.qdqqd.com/pc-images' : 'https://tc.qdqqd.com/pe-images';
-
-            const response = await fetch(endpoint);
-            const data = await response.json();
-            return data.data.map(image => image.url);
-        }
-
-        async function preloadImages(imageUrls) {
-            return new Promise((resolve, reject) => {
-                let loadedImages = 0;
-                const totalImages = imageUrls.length;
-
-                if (totalImages === 0) {
-                    resolve();
-                    return;
-                }
-
-                imageUrls.forEach(url => {
-                    const img = new Image();
-                    img.src = url;
-                    img.onload = () => {
-                        loadedImages++;
-                        if (loadedImages === totalImages) {
-                            resolve();
-                        }
-                    };
-                    img.onerror = () => {
-                        console.error('Image failed to load:', url);
-                        loadedImages++;
-                        if (loadedImages === totalImages) {
-                            resolve();
-                        }
-                    };
-                });
-            });
-        }
-
-        async function setBackgroundImages() {
-            const images = await fetchBingImages(); // 调用 fetchBingImages 获取图片 URL
-            const backgroundDiv = document.getElementById('background');
-
-            if (images.length > 0) {
-                // 预加载所有图像
-                await preloadImages(images);
-
-                backgroundDiv.style.backgroundImage = 'url(' + images[0] + ')';
-                backgroundDiv.style.backgroundSize = 'cover';
-                backgroundDiv.style.backgroundPosition = 'center';
-
-                let index = 0;
-                let currentBackgroundDiv = backgroundDiv;
-
-                setInterval(() => {
-                    const nextIndex = (index + 1) % images.length;
-                    const nextBackgroundDiv = document.createElement('div');
-                    nextBackgroundDiv.className = 'background next';
-                    nextBackgroundDiv.style.backgroundImage = 'url(' + images[nextIndex] + ')';
-                    nextBackgroundDiv.style.backgroundSize = 'cover';
-                    nextBackgroundDiv.style.backgroundPosition = 'center';
-                    nextBackgroundDiv.style.position = 'absolute';
-                    nextBackgroundDiv.style.top = '0';
-                    nextBackgroundDiv.style.left = '0';
-                    nextBackgroundDiv.style.width = '100%';
-                    nextBackgroundDiv.style.height = '100%';
-                    nextBackgroundDiv.style.transition = 'opacity 1s';
-                    nextBackgroundDiv.style.opacity = 0;
-
-                    document.body.appendChild(nextBackgroundDiv);
-
-                    // 确保背景图像加载完成后再设置其 opacity
-                    const img = new Image();
-                    img.src = images[nextIndex];
-                    img.onload = () => {
-                        nextBackgroundDiv.style.opacity = 1;
-                        setTimeout(() => {
-                            document.body.removeChild(currentBackgroundDiv);
-                            currentBackgroundDiv = nextBackgroundDiv;
-                            index = nextIndex;
-                        }, 1000);
-                    };
-                    img.onerror = () => {
-                        console.error('Failed to load image:', images[nextIndex]);
-                        document.body.removeChild(nextBackgroundDiv);
-                        index = (index + 1) % images.length; // 跳过失败的图片
-                    };
-
-                }, 8000);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', setBackgroundImages); // 页面加载后设置背景图
     </script>
   <script charset="UTF-8" id="LA_COLLECT" src="https://testingcf.jsdelivr.net/gh/qdqqd/url-core@main/js-sdk-pro.min.js"></script>
+  <script charset="UTF-8" id="LA_COLLECT" src="https://testingcf.jsdelivr.net/gh/qdqqd/url-core@main/pixiv.js"></script>
 </body>
 </html>
