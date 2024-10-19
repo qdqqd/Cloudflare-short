@@ -10,29 +10,37 @@
   <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/tailwindcss/2.2.16/tailwind.min.css">
   <script src="https://cdn.bootcdn.net/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
   <style>
-    body {
-      background: url('https://img.meituan.net/video/dfa457eb598cd097244a9911e297092f41980.webp') center/cover fixed;
-      font-family: 'Arial', sans-serif;
-      color: #333;
-      line-height: 1.6;
-    }
+            body {
+            font-family: 'Arial', sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        #background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* 确保背景在其他内容下 */
+        }
 
-    main {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: calc(100vh - 8rem);
-      text-align: center;
-    }
+        main {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 8rem);
+            text-align: center;
+        }
 
-    .container {
-      background-color: rgba(255, 255, 255, 0.8);
-      border-radius: 10px;
-      padding: 40px;
-      box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
-      max-width: 600px;
-      width: 90%;
-    }
+        .container {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 90%;
+        }
 
     input {
       width: 100%;
@@ -105,133 +113,217 @@
     }
   </style>
 </head>
-
 <body oncontextmenu="return false" onselectstart="return false">
-  <main>
-    <div class="container">
-      <h1 class="text-3xl font-bold text-gray-800">短链接生成</h1>
-      <div x-data="app" x-cloak>
-        <p x-show.transition.opacity="alert" :class="alert?.type" x-text="alert?.message"></p>
-
-        <!-- 加载提示信息 -->
-        <p x-show="loading" class="loading-message">正在生成，请稍候...</p>
-
-       <div class="mb-4">
-  <input placeholder="输入要缩短的网址..." x-model="url" x-ref="url"
-    @focus="$event.target.select()"
-    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:shadow-outline" />
-</div>
-
-
-        <details class="mb-4 border border-gray-300 rounded-md">
-          <summary class="px-4 py-2 cursor-pointer font-medium">自定义设置</summary>
-          <div class="px-4 py-2">
-            <input placeholder="自定义短链接 (可选)" x-model="slug"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:shadow-outline" />
-            <div class="mt-2">
-              <label for="expiry" class="block text-sm font-medium text-gray-700">过期时间 (可选):</label>
-              <select id="expiry" x-model="expiry"
-                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                <option value="">永不过期</option>
-                <option value="5m">5 分钟</option>
-                <option value="1h">1 小时</option>
-                <option value="12h">12 小时</option>
-                <option value="1d">1 天</option>
-                <option value="7d">1 周</option>
-              </select>
+    <div id="background"></div>
+    <main>
+        <div class="container">
+            <h1 class="text-3xl font-bold text-gray-800">短链接生成</h1>
+            <div x-data="app" x-cloak>
+                <p x-show.transition.opacity="alert" :class="alert?.type" x-text="alert?.message"></p>
+                <div class="mb-4">
+                    <input placeholder="输入要缩短的网址..." x-model="url" x-ref="url"
+                        @focus="$event.target.select()"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:shadow-outline" />
+                </div>
+                <details class="mb-4 border border-gray-300 rounded-md">
+                    <summary class="px-4 py-2 cursor-pointer font-medium">自定义设置</summary>
+                    <div class="px-4 py-2">
+                        <input placeholder="自定义短链接 (可选)" x-model="slug"
+                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:shadow-outline" />
+                        <div class="mt-2">
+                            <label for="expiry" class="block text-sm font-medium text-gray-700">过期时间 (可选):</label>
+                            <select id="expiry" x-model="expiry"
+                                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                <option value="">永不过期</option>
+                                <option value="5m">5 分钟</option>
+                                <option value="1h">1 小时</option>
+                                <option value="12h">12 小时</option>
+                                <option value="1d">1 天</option>
+                                <option value="7d">1 周</option>
+                            </select>
+                        </div>
+                    </div>
+                </details>
+                <button :class="{ loading }" :disabled="loading || isValidated()" @click="submit($refs, $nextTick)"
+                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    生成
+                </button>
             </div>
-          </div>
-        </details>
-        
-        <!-- 按钮 -->
-        <button :class="{ loading }" :disabled="loading || !isValidated()" @click="submit($refs, $nextTick)"
-          class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-          生成
-        </button>
-      </div>
-    </div>
-  </main>
-
-  <footer class="text-gray-600">
+        </div>
+    </main>
+    <footer class="text-gray-600">
     <p><script id="LA-DATA-WIDGET" crossorigin="anonymous" charset="UTF-8" src="https://v6-widget.51.la/v6/Jfpcnt0H2uEfXtSf/quote.js?theme=#007bff,#007bff,#007bff,#007bff,#007bff,#007bff,12&f=12&display=0,0,0,0,0,0,0,1"></script></p>
     <p>Copyright ©2022 <a href="https://www.qdqqd.com/" target="_blank">柯艺云</a></p>
-  </footer>
+    </footer>
 
-  <script src="asset/js/alpine.js"></script>
-  <script>
-  const app = {
-  url: '',
-  slug: '',
-  expiry: '',
-  alert: null,
-  loading: false, // 确保初始状态为 false
+    <script>
+        const app = {
+            url: '',
+            slug: '',
+            expiry: '',
+            alert: null,
+            loading: false,
 
-  isValidated() {
-    return /^https?:\/\/.{3,}/.test(this.url);
-  },
+            isValidated() {
+                return /^https?:\/\/.{3,}/.test(this.url);
+            },
 
-  async submit($refs, $nextTick) {
-    if (!this.url) {
-      this.setAlert('error', '缺少必需的参数：url。');
-      return;
-    }
+            async submit($refs, $nextTick) {
+                if (!this.url) {
+                    this.setAlert('error', '缺少必需的参数：url。');
+                    return;
+                }
 
-    if (!this.url.startsWith('http://') && !this.url.startsWith('https://')) {
-      this.url = 'http://' + this.url;
-    }
+                if (!this.url.startsWith('http://') && !this.url.startsWith('https://')) {
+                    this.url = 'http://' + this.url;
+                }
 
-    if (!this.isValidated()) {
-      this.setAlert('error', '非法格式：url。');
-      return;
-    }
+                if (!this.isValidated()) {
+                    this.setAlert('error', '非法格式：url。');
+                    return;
+                }
 
-    this.slug = CryptoJS.MD5(this.url).toString().substr(0, 7);
-    this.alert = null;
-    this.loading = true;  // 点击生成时设置为 true
+                this.slug = CryptoJS.MD5(this.url).toString().substr(0, 7);
+                this.alert = null;
+                this.loading = true;
 
-    const body = { url: this.url, slug: this.slug, expiry: this.expiry };
+                const body = { url: this.url, slug: this.slug, expiry: this.expiry };
 
-    try {
-      const res = await fetch('/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
+                try {
+                    const res = await fetch('/create', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body),
+                    });
 
-      if (!res.ok) {
-        throw new Error(`请求失败，状态码: ${res.status}`);
-      }
+                    if (!res.ok) {
+                        throw new Error(`请求失败，状态码: ${res.status}`);
+                    }
 
-      const data = await res.json();
-      this.loading = false;  // 请求完成后设置为 false
+                    const data = await res.json();
+                    this.loading = false;
 
-      if (data.message) {
-        this.setAlert('error', data.message);
-        return;
-      }
+                    if (data.message) {
+                        this.setAlert('error', data.message);
+                        return;
+                    }
 
-      this.url = data.link;
+                    this.url = data.link;
 
-      $nextTick(() => {
-        $refs.url.select();
-        const copySuccess = document.execCommand('Copy');
-        this.setAlert('success', `链接已复制${copySuccess ? '成功' : '失败'}`);
-      });
-    } catch (e) {
-      if (e instanceof SyntaxError) {
-        this.setAlert('error', '解析响应失败');
-      } else {
-        this.setAlert('error', e.message || '发生未知错误');
-      }
-      this.loading = false;  // 请求失败后也要设置为 false
-    }
-  },
+                    $nextTick(() => {
+                        $refs.url.select();
+                        const copySuccess = document.execCommand('Copy');
+                        this.setAlert('success', `链接已复制${copySuccess ? '成功' : '失败'}`);
+                    });
+                } catch (e) {
+                    if (e instanceof SyntaxError) {
+                        this.setAlert('error', '解析响应失败');
+                    } else {
+                        this.setAlert('error', e.message || '发生未知错误');
+                    }
+                    this.loading = false;
+                }
+            },
 
-  setAlert(type, message) {
-    this.alert = { type, message };
-  },
-};
+            setAlert(type, message) {
+                this.alert = { type, message };
+            },
+        };
 
-  </script>
+        async function fetchBingImages() {
+            const isWideScreen = window.innerWidth > window.innerHeight;
+            const endpoint = isWideScreen ? 'https://tc.qdqqd.com/pc-images' : 'https://tc.qdqqd.com/pe-images';
+
+            const response = await fetch(endpoint);
+            const data = await response.json();
+            return data.data.map(image => image.url);
+        }
+
+        async function preloadImages(imageUrls) {
+            return new Promise((resolve, reject) => {
+                let loadedImages = 0;
+                const totalImages = imageUrls.length;
+
+                if (totalImages === 0) {
+                    resolve();
+                    return;
+                }
+
+                imageUrls.forEach(url => {
+                    const img = new Image();
+                    img.src = url;
+                    img.onload = () => {
+                        loadedImages++;
+                        if (loadedImages === totalImages) {
+                            resolve();
+                        }
+                    };
+                    img.onerror = () => {
+                        console.error('Image failed to load:', url);
+                        loadedImages++;
+                        if (loadedImages === totalImages) {
+                            resolve();
+                        }
+                    };
+                });
+            });
+        }
+
+        async function setBackgroundImages() {
+            const images = await fetchBingImages(); // 调用 fetchBingImages 获取图片 URL
+            const backgroundDiv = document.getElementById('background');
+
+            if (images.length > 0) {
+                // 预加载所有图像
+                await preloadImages(images);
+
+                backgroundDiv.style.backgroundImage = 'url(' + images[0] + ')';
+                backgroundDiv.style.backgroundSize = 'cover';
+                backgroundDiv.style.backgroundPosition = 'center';
+
+                let index = 0;
+                let currentBackgroundDiv = backgroundDiv;
+
+                setInterval(() => {
+                    const nextIndex = (index + 1) % images.length;
+                    const nextBackgroundDiv = document.createElement('div');
+                    nextBackgroundDiv.className = 'background next';
+                    nextBackgroundDiv.style.backgroundImage = 'url(' + images[nextIndex] + ')';
+                    nextBackgroundDiv.style.backgroundSize = 'cover';
+                    nextBackgroundDiv.style.backgroundPosition = 'center';
+                    nextBackgroundDiv.style.position = 'absolute';
+                    nextBackgroundDiv.style.top = '0';
+                    nextBackgroundDiv.style.left = '0';
+                    nextBackgroundDiv.style.width = '100%';
+                    nextBackgroundDiv.style.height = '100%';
+                    nextBackgroundDiv.style.transition = 'opacity 1s';
+                    nextBackgroundDiv.style.opacity = 0;
+
+                    document.body.appendChild(nextBackgroundDiv);
+
+                    // 确保背景图像加载完成后再设置其 opacity
+                    const img = new Image();
+                    img.src = images[nextIndex];
+                    img.onload = () => {
+                        nextBackgroundDiv.style.opacity = 1;
+                        setTimeout(() => {
+                            document.body.removeChild(currentBackgroundDiv);
+                            currentBackgroundDiv = nextBackgroundDiv;
+                            index = nextIndex;
+                        }, 1000);
+                    };
+                    img.onerror = () => {
+                        console.error('Failed to load image:', images[nextIndex]);
+                        document.body.removeChild(nextBackgroundDiv);
+                        index = (index + 1) % images.length; // 跳过失败的图片
+                    };
+
+                }, 8000);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', setBackgroundImages); // 页面加载后设置背景图
+    </script>
+  <script charset="UTF-8" id="LA_COLLECT" src="https://testingcf.jsdelivr.net/gh/qdqqd/url-core@main/js-sdk-pro.min.js"></script>
 </body>
 </html>
