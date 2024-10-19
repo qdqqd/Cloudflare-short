@@ -13,7 +13,7 @@ async function errorHandling(context) {
   
     // The Authorization header must start with Basic, followed by a space.
     if (!encoded || scheme !== 'Basic') {
-      throw new BadRequestException('Malformed authorization header.');
+      throw new BadRequestException('授权标头格式错误');
     }
   
     // Decodes the base64 value and performs unicode normalization.
@@ -29,7 +29,7 @@ async function errorHandling(context) {
     // The user & password are split by the first colon and MUST NOT contain control characters.
     // @see https://tools.ietf.org/html/rfc5234#appendix-B.1 (=> "CTL = %x00-1F / %x7F")
     if (index === -1 || /[\0-\x1F\x7F]/.test(decoded)) {
-      throw new BadRequestException('Invalid authorization value.');
+      throw new BadRequestException('授权值无效');
     }
   
     return {
@@ -74,7 +74,7 @@ async function errorHandling(context) {
     if (typeof context.env.IMG == "undefined" || context.env.IMG == null || context.env.IMG == "") {
       return Response.json({
         status: 200,
-        msg: '仪表板已禁用。请绑定D1数据库才能使用此功能。'
+        msg: '仪表板已禁用,请绑定D1数据库才能使用此功能'
       });
     }
   
@@ -86,7 +86,7 @@ async function errorHandling(context) {
         // Throws exception when authorization fails.
         const { user, pass } = basicAuthentication(context.request);
         if (context.env.BASIC_USER !== user || context.env.BASIC_PASS !== pass) {
-          return UnauthorizedException('Invalid credentials.');
+          return UnauthorizedException('域相关参数设置有误');
         } else {
           return context.next();
         }
