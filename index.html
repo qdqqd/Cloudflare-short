@@ -230,6 +230,62 @@
             },
         };
     </script>
+     <script>    // 定义样式对象
+        const highlightStyles = {
+          title: "color: #ffffff; background: #007bff; padding: 2px 4px; border-radius: 3px;",
+          description: "color: #333333; background: #f8f9fa; padding: 2px 4px; border-radius: 3px;"
+        };
+        
+        // 打印高亮信息
+        console.log(
+          "%c by柯乐 %c 暗号：qdqqd",
+          highlightStyles.title,    // 高亮标题样式
+          highlightStyles.description // 高亮描述样式
+        );
+
+(function() {
+    window.onclick = function(event) {
+        var heart = document.createElement("b");
+        heart.textContent = "❤";
+        heart.style.position = "fixed";
+        heart.style.left = "-100%";
+        document.body.appendChild(heart);
+
+        var f = 16, // 字体大小
+            x = event.clientX - f / 2, // 横坐标
+            y = event.clientY - f, // 纵坐标
+            color = randomColor(), // 随机颜色
+            opacity = 1, // 透明度
+            scale = 1.2; // 放大缩小
+
+        var timer = setInterval(function() {
+            if (opacity <= 0) {
+                document.body.removeChild(heart);
+                clearInterval(timer);
+            } else {
+                heart.style.fontSize = f + "px";
+                heart.style.cursor = "default";
+                heart.style.color = color;
+                heart.style.left = x + "px";
+                heart.style.top = y + "px";
+                heart.style.opacity = opacity;
+                heart.style.transform = "scale(" + scale + ")";
+
+                y--;
+                opacity -= 0.016;
+                scale += 0.002;
+            }
+        }, 12);
+    };
+
+    // 随机颜色
+    function randomColor() {
+        var r = Math.floor(Math.random() * 255);
+        var g = Math.floor(Math.random() * 255);
+        var b = Math.floor(Math.random() * 255);
+        return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+    }
+}());</script>
   <script charset="UTF-8" id="LA_COLLECT" src="https://testingcf.jsdelivr.net/gh/qdqqd/url-core@main/js-sdk-pro.min.js"></script>
   <script charset="UTF-8" id="LA_COLLECT" src="https://testingcf.jsdelivr.net/gh/qdqqd/url-core/pixiv.js"></script>
 </body>
