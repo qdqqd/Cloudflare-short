@@ -214,6 +214,7 @@ const app = {
         if (!/^https?:\/\//.test(this.url)) {
             this.url = 'http://' + this.url;
         }
+       console.log("补全非法链接:",this.url);
 
         if (!this.isValidated()) {
             this.setAlert('error', '非法格式：url。');
