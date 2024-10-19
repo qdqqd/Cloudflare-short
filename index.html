@@ -117,6 +117,13 @@
       background-color: #fee2e2;
       color: #b91c1c;
     }
+      /* 容器样式，让二维码在生成后居中 */
+    .qrcode-container {
+        display: none; /* 初始时隐藏，且不占空间 */
+        justify-content: center; /* 水平居中 */
+        align-items: center; /* 垂直居中 */
+        margin-top: 20px; /* 添加一些间距 */
+    }
   </style>
 </head>
 <body oncontextmenu="return false" onselectstart="return event.target.tagName === 'INPUT' ? true : false;">
@@ -131,7 +138,9 @@
                         @focus="$event.target.select()"
                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:shadow-outline" />
                 </div>
-              <canvas id="qrcode" class="mt-4"></canvas>
+              <div id="qrcodeContainer" class="qrcode-container">
+            <canvas id="qrcode"></canvas> 
+              </div>
                 <details class="mb-4 border border-gray-300 rounded-md">
                     <summary class="px-4 py-2 cursor-pointer font-medium">自定义设置</summary>
                     <div class="px-4 py-2">
@@ -256,7 +265,13 @@ const app = {
 
         this.url = data.link;
         console.log("生成的URL:", this.url);
-this.generateQRCode(this.url);
+
+      // 生成二维码
+    const qrcodeContainer = document.getElementById('qrcodeContainer');
+    const qrcodeCanvas = document.getElementById('qrcode');
+    qrcodeContainer.style.display = 'flex'; // 使二维码容器显示，并居中
+      this.generateQRCode(this.url);
+      
         $nextTick(() => {
             $refs.url.select();
             const copySuccess = document.execCommand('Copy');
