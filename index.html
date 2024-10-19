@@ -1,105 +1,110 @@
 <!DOCTYPE html>
-  <html lang="zh-CN">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-    <link rel="icon" href="https://www.qdqqd.com/favicon.ico" type="image/x-icon">
-    <meta itemprop="image" content="https://www.qdqqd.com/favicon.png" />
-    <link rel="shortcut icon" href="https://www.qdqqd.com/favicon.ico">
-    <link rel="icon" href="https://www.qdqqd.com/favicon.ico">
+  <link rel="icon" href="https://www.qdqqd.com/favicon.ico" type="image/x-icon">
+  <meta itemprop="image" content="https://www.qdqqd.com/favicon.png" />
+  <link rel="shortcut icon" href="https://www.qdqqd.com/favicon.ico">
+  <link rel="icon" href="https://www.qdqqd.com/favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>短链接生成 - 柯艺云</title>
-      <meta name="referrer" content="never">
-     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/tailwindcss/2.2.16/tailwind.min.css">
-    <script src="https://cdn.bootcdn.net/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+  <meta name="referrer" content="never">
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/tailwindcss/2.2.16/tailwind.min.css">
+  <script src="https://cdn.bootcdn.net/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
   <style>
    body {
-  background: url('https://img.meituan.net/video/dfa457eb598cd097244a9911e297092f41980.webp') center/cover fixed;
-  font-family: 'Arial', sans-serif;
-  color: #333;
-  line-height: 1.6; /* 增加行高 */
-}
+      background: url('https://img.meituan.net/video/dfa457eb598cd097244a9911e297092f41980.webp') center/cover fixed;
+      font-family: 'Arial', sans-serif;
+      color: #333;
+      line-height: 1.6;
+    }
 
-main {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: calc(100vh - 8rem);
-  text-align: center;
-}
+    main {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 8rem);
+      text-align: center;
+    }
 
-.container {
-  background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 10px;
-  padding: 40px;
-  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
-  max-width: 600px;
-  width: 90%; /* 小屏幕宽度 */
-}
+    .container {
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+      padding: 40px;
+      box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+      max-width: 600px;
+      width: 90%;
+    }
 
-input {
-  width: 100%; /* 输入框宽度占满 */
-  padding: 10px; /* 内边距 */
-  border: 1px solid #ddd; /* 边框 */
-  border-radius: 5px; /* 圆角边框 */
-  transition: border-color 0.3s ease; /* 边框颜色过渡 */
-}
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      transition: border-color 0.3s ease;
+    }
 
-input:focus {
-  outline: none;
-  border-color: #22c55e; /* 聚焦时边框颜色 */
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.5); /* 绿色聚焦效果 */
-}
+    input:focus {
+      outline: none;
+      border-color: #22c55e;
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.5);
+    }
 
-button {
-  background-color: #22c55e; /* 绿色按钮 */
-  color: white;
-  transition: background-color 0.3s ease;
-  cursor: pointer; /* 鼠标手形 */
-}
+    button {
+      background-color: #22c55e;
+      color: white;
+      transition: background-color 0.3s ease;
+      cursor: pointer;
+    }
 
-button:hover {
-  background-color: #16a34a; /* 深绿色悬停 */
-}
+    button:hover {
+      background-color: #16a34a;
+    }
 
-button:active {
-  transform: scale(0.95); /* 点击时缩放 */
-}
+    button:active {
+      transform: scale(0.95);
+    }
 
-footer {
-  padding: 20px;
-  text-align: center;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  box-shadow: none;
-}
+    footer {
+      padding: 20px;
+      text-align: center;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      box-shadow: none;
+    }
 
-h1 {
-  font-size: 3em; /* 加大标题字体 */
-  font-weight: 700; /* 字体粗细 */
-  margin-bottom: 20px;
-  color: #22c55e; /* 标题颜色 */
-}
+    h1 {
+      font-size: 3em;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #22c55e;
+    }
 
-.success, .error {
-  padding: 10px 20px;
-  border-radius: 5px;
-  margin-bottom: 20px;
-  font-weight: 600; /* 消息字体粗细 */
-  transition: opacity 0.5s ease; /* 透明度过渡 */
-}
+    .loading-message {
+      font-size: 1.2em;
+      color: #555;
+      margin-bottom: 20px;
+    }
 
-.success {
-  background-color: #d1fae5; /* 浅绿色成功消息 */
-  color: #047857;
-}
+    .success, .error {
+      padding: 10px 20px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      font-weight: 600;
+      transition: opacity 0.5s ease;
+    }
 
-.error {
-  background-color: #fee2e2; /* 浅红色错误消息 */
-  color: #b91c1c;
-}
+    .success {
+      background-color: #d1fae5;
+      color: #047857;
+    }
 
+    .error {
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
   </style>
 </head>
 
@@ -109,10 +114,15 @@ h1 {
       <h1 class="text-3xl font-bold text-gray-800">短链接生成</h1>
       <div x-data="app" x-cloak>
         <p x-show.transition.opacity="alert" :class="alert?.type" x-text="alert?.message"></p>
+
+        <!-- 加载提示信息 -->
+        <p x-show="loading" class="loading-message">正在生成，请稍候...</p>
+
         <div class="mb-4">
           <input placeholder="输入要缩短的网址..." x-model="url" x-ref="url"
             class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:shadow-outline" />
         </div>
+
         <details class="mb-4 border border-gray-300 rounded-md">
           <summary class="px-4 py-2 cursor-pointer font-medium">自定义设置</summary>
           <div class="px-4 py-2">
@@ -132,6 +142,8 @@ h1 {
             </div>
           </div>
         </details>
+        
+        <!-- 按钮 -->
         <button :class="{ loading }" :disabled="loading || isValidated()" @click="submit($refs, $nextTick)"
           class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
           生成
@@ -139,9 +151,9 @@ h1 {
       </div>
     </div>
   </main>
+
   <footer class="text-gray-600">
- <script id="LA-DATA-WIDGET" crossorigin="anonymous" charset="UTF-8" src="https://v6-widget.51.la/v6/Jfpcnt0H2uEfXtSf/quote.js?theme=#007bff,#007bff,#007bff,#007bff,#007bff,#007bff,12&f=12&display=0,0,0,0,0,0,0,1"></script>
-<br />
+    <br />
     Copyright ©2022 <a href="https://www.qdqqd.com/" target="_blank">柯艺云</a>
   </footer>
 
@@ -155,36 +167,31 @@ h1 {
     loading: false,
 
     isValidated() {
-      // 使用正则表达式验证 URL 格式
       return /^https?:\/\/.{3,}/.test(this.url);
     },
 
     async submit($refs, $nextTick) {
-  if (!this.url) {
-    this.setAlert('error', '缺少必需的参数：url。');
-    return;
-  }
+      if (!this.url) {
+        this.setAlert('error', '缺少必需的参数：url。');
+        return;
+      }
 
-  // 自动补全协议（http://）如果没有提供
-  if (!this.url.startsWith('http://') && !this.url.startsWith('https://')) {
-    this.url = 'http://' + this.url; // 默认使用 http
-  }
+      if (!this.url.startsWith('http://') && !this.url.startsWith('https://')) {
+        this.url = 'http://' + this.url;
+      }
 
-  // URL 格式验证
-  if (!this.isValidated()) {
-    this.setAlert('error', '非法格式：url。');
-    return;
-  }
+      if (!this.isValidated()) {
+        this.setAlert('error', '非法格式：url。');
+        return;
+      }
 
-  // 生成唯一 slug
-  this.slug = CryptoJS.MD5(this.url).toString().substr(0, 7);
-  this.alert = null;
-  this.loading = true;
+      this.slug = CryptoJS.MD5(this.url).toString().substr(0, 7);
+      this.alert = null;
+      this.loading = true; // 设置 loading 状态，显示加载提示
 
-  const body = { url: this.url, slug: this.slug, expiry: this.expiry };
+      const body = { url: this.url, slug: this.slug, expiry: this.expiry };
 
       try {
-        // 发送请求
         const res = await fetch('/create', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -192,9 +199,8 @@ h1 {
         });
 
         const data = await res.json();
-        this.loading = false;
+        this.loading = false; // 关闭 loading 状态
 
-        // 检查响应
         if (data.message) {
           this.setAlert('error', data.message);
           return;
@@ -202,7 +208,6 @@ h1 {
 
         this.url = data.link;
 
-        // 复制链接到剪贴板
         $nextTick(() => {
           $refs.url.select();
           const copySuccess = document.execCommand('Copy');
@@ -215,11 +220,9 @@ h1 {
     },
 
     setAlert(type, message) {
-      // 统一的警告设置方法
       this.alert = { type, message };
     },
   };
-</script>
-  <script charset="UTF-8" id="LA_COLLECT" src="https://testingcf.jsdelivr.net/gh/qdqqd/url-core@main/js-sdk-pro.min.js"></script>
+  </script>
 </body>
 </html>
