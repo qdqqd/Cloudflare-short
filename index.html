@@ -164,28 +164,21 @@ const app = {
     alert: null,
     loading: false,
 
-    // 整合 URL 验证和处理的函数
-    processUrl(url) {
-        // 检查 URL 是否有效
+    // 使用更简洁的方式验证 URL
+    isValidated() {
+        const isValid = this.validateUrl(this.url);
+        console.log("URL Validated:", this.url, isValid);
+        return isValid;
+    },
+
+    // 创建一个专门用于验证 URL 的函数
+    validateUrl(url) {
+        // 使用 URL 构造函数来验证格式
         try {
-            const validatedUrl = new URL(url);
-            return validatedUrl.href; // 返回有效 URL
+            new URL(url);
+            return true;
         } catch {
-            // 检查是否以 http:// 或 https:// 开头
-            if (!/^https?:\/\//.test(url)) {
-                // 补全为 http://
-                url = 'http://' + url;
-                try {
-                    const validatedUrl = new URL(url);
-                    return validatedUrl.href; // 返回补全后的有效 URL
-                } catch {
-                    this.setAlert('error', '非法格式：url');
-                    return null; // 返回 null 以表示错误
-                }
-            } else {
-                this.setAlert('error', '非法格式：url');
-                return null; // 返回 null 以表示错误
-            }
+            return false;
         }
     },
 
@@ -213,22 +206,28 @@ const app = {
         console.log("Submit method called.");
 
         if (!this.url) {
-            this.setAlert('error', '缺少必需的参数：url');
+            this.setAlert('error', '缺少必需的参数：url。');
             return;
         }
 
-        // 处理 URL
-        const processedUrl = this.processUrl(this.url);
-        if (!processedUrl) return; // 如果 URL 格式错误，则结束任务
+        // 确保 URL 以 http:// 或 https:// 开头
+        if (!/^https?:\/\//.test(this.url)) {
+            this.url = 'http://' + this.url;
+        }
+
+        if (!this.isValidated()) {
+            this.setAlert('error', '非法格式：url。');
+            return;
+        }
 
         this.alert = { type: 'info', message: '正在生成短链接...' }; // 添加生成提示
         this.loading = true;
 
         // 调用 generateSlug 生成 slug
-        this.slug = await this.generateSlug(processedUrl);
+        this.slug = await this.generateSlug(this.url);
         console.log("Generated slug:", this.slug);
 
-        const body = { url: processedUrl, slug: this.slug, expiry: this.expiry };
+        const body = { url: this.url, slug: this.slug, expiry: this.expiry };
 
         try {
             const res = await fetch('/create', {
@@ -276,6 +275,7 @@ const app = {
         console.log("Alert set:", type, message);
     },
 };
+
 
 
 
