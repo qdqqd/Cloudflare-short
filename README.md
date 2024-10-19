@@ -8,16 +8,20 @@
 *   **过期时间选项：** 增加了短链接过期时间选项，更加灵活。
 
 ## 演示
-[https://url.wangwangit.com/](https://url.wangwangit.com/)
+[https://dwz.qdqqd.com/](https://dwz.qdqqd.com/)
 
 ## 使用 Cloudflare Pages 部署
 
-1.  **Fork 本项目**
-2.  **登录 Cloudflare 控制台：** [https://dash.cloudflare.com/](https://dash.cloudflare.com/)
-3.  **创建 Pages 项目：** 在您的 Cloudflare 账户中，选择 `Pages` > `创建项目` > `连接到 Git`。
-4.  **选择仓库并部署：** 选择您 Fork 的项目仓库，在 `设置构建和部署` 部分保持默认设置，然后点击 `保存并部署`。
-5.  **创建 D1 数据库：** 参考 [https://github.com/x-dr/telegraph-Image/blob/main/docs/manage.md](https://github.com/x-dr/telegraph-Image/blob/main/docs/manage.md) 创建一个 D1 数据库。
-6.  **创建数据库表：** 在 D1 数据库控制台中执行以下 SQL 命令创建表：
+1. fork本项目
+2. 登录到[Cloudflare](https://dash.cloudflare.com/)控制台.
+3. 在帐户主页中，选择`pages`> ` Create a project` > `Connect to Git`
+4. 选择你创建的项目存储库，在`Set up builds and deployments`部分中，全部默认即可。
+5. 点击`Save and Deploy`，稍等片刻，你的网站就部署好了。
+6. 创建D1数据库
+7. 执行sql命令创建表（在控制台输入框粘贴下面语句执行即可）
+8. 选择部署完成short项目，前往后台依次点击`设置`->`函数`->`D1 数据库绑定`->`编辑绑定`->变量名称填写：`DB` 命名空间 `选择你提前创建好的D1` 数据库绑定
+9. 重新部署项目，完成。
+
 ```sql
 DROP TABLE IF EXISTS links;
 CREATE TABLE IF NOT EXISTS links (
