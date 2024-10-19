@@ -114,7 +114,8 @@
     }
   </style>
 </head>
-<body oncontextmenu="return false" onselectstart="return false">
+<body oncontextmenu="return false" onselectstart="return event.target.tagName === 'INPUT' ? true : false;">
+
     <main>
         <div class="container" style="position: relative; z-index: 1;">
             <h1 class="text-3xl font-bold text-gray-800">短链接生成</h1>
