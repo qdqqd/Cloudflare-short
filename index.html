@@ -203,26 +203,20 @@ const app = {
         }
     },
 
-    async generateSlug(url) {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(url);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        return this.getRandomCharacters(hashHex, 7);
-    },
+  async generateSlug(length = 7) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const randomChars = [];
 
-    getRandomCharacters(str, length) {
-        const randomIndices = [];
-        while (randomIndices.length < length) {
-            const randomIndex = Math.floor(Math.random() * str.length);
-            if (!randomIndices.includes(randomIndex)) {
-                randomIndices.push(randomIndex);
-            }
-        }
-        return randomIndices.map(index => str[index]).join('');
-    },
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        randomChars.push(characters[randomIndex]); // 使用数组存储随机字符
+    }
 
+    return randomChars.join(''); // 最后将数组转成字符串
+}
+
+
+  
     async submit($refs, $nextTick) {
     if (!this.url) {
         this.setAlert('error', '缺少必需的参数：url。');
@@ -243,7 +237,7 @@ const app = {
 
       // 只有当用户没有输入自定义的 slug 时才生成 slug
     if (!this.slug) {
-        this.slug = await this.generateSlug(this.url);
+        this.slug = await this.generateSlug();
     }
     const body = { url: this.url, slug: this.slug, expiry: this.expiry };
 
