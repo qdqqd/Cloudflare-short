@@ -144,6 +144,28 @@
                 </div>
               <div id="qrcodeContainer" class="qrcode-container">
             <canvas id="qrcode"></canvas>
+<a id="downloadLink" style="display: none;">下载图片</a>
+<script>
+  // 模拟绘制二维码或其他内容到 canvas
+  const canvas = document.getElementById('qrcode');
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = 'black';
+  ctx.fillRect(50, 50, 64, 64);  // 在 canvas 中绘制一个简单的黑色正方形
+
+  // 监听 canvas 的左键点击事件
+  canvas.addEventListener('click', function() {
+    // 将 canvas 内容转换为图片 URL
+    const dataURL = canvas.toDataURL('image/png');
+
+    // 创建下载链接并自动点击下载
+    const downloadLink = document.getElementById('downloadLink');
+    downloadLink.href = dataURL;
+    downloadLink.download = 'qrcode.png';  // 设置下载的文件名
+    downloadLink.style.display = 'block';  // 显示链接
+    downloadLink.click();  // 自动触发点击下载图片
+    downloadLink.style.display = 'none';  // 隐藏下载链接
+  });
+</script>
               </div>
                 <details class="mb-4 border border-gray-300 rounded-md">
                     <summary class="px-4 py-2 cursor-pointer font-medium">自定义设置</summary>
