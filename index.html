@@ -160,7 +160,7 @@
     // 创建下载链接并自动点击下载
     const downloadLink = document.getElementById('downloadLink');
     downloadLink.href = dataURL;
-    downloadLink.download = 'qrcode.png';  // 设置下载的文件名
+    downloadLink.download = 'qrcode_qdqqd.png';  // 设置下载的文件名
     downloadLink.style.display = 'block';  // 显示链接
     downloadLink.click();  // 自动触发点击下载图片
     downloadLink.style.display = 'none';  // 隐藏下载链接
@@ -290,6 +290,8 @@ async generateSlug() {
     const qrcodeCanvas = document.getElementById('qrcode');
     qrcodeContainer.style.display = 'flex'; // 使二维码容器显示，并居中
     qrcodeContainer.style.cursor = 'pointer'; // 让鼠标悬停在 canvas 上时显示为可点击的手型指针，提升用户体验。
+    qrcodeContainer.title = '可点击图片下载二维码'; 
+ 
       this.generateQRCode(this.url);
       
         $nextTick(() => {
