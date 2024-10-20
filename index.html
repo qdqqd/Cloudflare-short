@@ -289,6 +289,7 @@ async generateSlug() {
     const qrcodeContainer = document.getElementById('qrcodeContainer');
     const qrcodeCanvas = document.getElementById('qrcode');
     qrcodeContainer.style.display = 'flex'; // 使二维码容器显示，并居中
+    qrcodeContainer.style.cursor = 'pointer'; // 让鼠标悬停在 canvas 上时显示为可点击的手型指针，提升用户体验。
       this.generateQRCode(this.url);
       
         $nextTick(() => {
